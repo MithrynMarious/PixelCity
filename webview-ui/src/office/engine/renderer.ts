@@ -628,6 +628,7 @@ export function renderFrame(
   layoutRows?: number,
   glowingBuildings?: Set<string>,
   dt?: number,
+  isInterior?: boolean,
 ): { offsetX: number; offsetY: number } {
   // Clear
   ctx.clearRect(0, 0, canvasWidth, canvasHeight)
@@ -650,20 +651,20 @@ export function renderFrame(
     renderSeatIndicators(ctx, selection.seats, selection.characters, selection.selectedAgentId, selection.hoveredTile, offsetX, offsetY, zoom)
   }
 
-  // Building sprite instances (multi-tile, z-sorted with characters)
-  const buildingInstances = hasBuildingSprites() ? getBuildingInstances() : []
+  // Building sprite instances (multi-tile, z-sorted with characters) — town only
+  const buildingInstances = !isInterior && hasBuildingSprites() ? getBuildingInstances() : []
 
-  // Nature sprite instances (trees, shadows, rocks — z-sorted with characters)
-  const natureShadows = hasNatureSprites() ? getShadowInstances() : []
-  const natureTrees = hasNatureSprites() ? getTreeInstances() : []
-  const natureRocks = hasNatureSprites() ? getRockInstances() : []
+  // Nature sprite instances (trees, shadows, rocks — z-sorted with characters) — town only
+  const natureShadows = !isInterior && hasNatureSprites() ? getShadowInstances() : []
+  const natureTrees = !isInterior && hasNatureSprites() ? getTreeInstances() : []
+  const natureRocks = !isInterior && hasNatureSprites() ? getRockInstances() : []
 
   // Build wall instances for z-sorting with furniture and characters
-  // Filter out wall instances for tiles covered by building sprites
+  // In interior, don't filter walls by building coverage
   const rawWallInstances = hasWallSprites()
     ? getWallInstances(tileMap, tileColors, layoutCols)
     : []
-  const wallInstances = hasBuildingSprites()
+  const wallInstances = !isInterior && hasBuildingSprites()
     ? rawWallInstances.filter(w => !isCoveredWallTile(
         Math.round(w.x / TILE_SIZE),
         Math.round(w.zY / TILE_SIZE) - 1))
@@ -675,8 +676,8 @@ export function renderFrame(
   const hoveredId = selection?.hoveredAgentId ?? null
   renderScene(ctx, allFurniture, characters, offsetX, offsetY, zoom, selectedId, hoveredId)
 
-  // Building glow overlay (replay mode)
-  if (glowingBuildings && glowingBuildings.size > 0) {
+  // Building glow overlay (replay mode) — town only
+  if (!isInterior && glowingBuildings && glowingBuildings.size > 0) {
     renderBuildingGlow(ctx, glowingBuildings, offsetX, offsetY, zoom, dt ?? 0)
   }
 
