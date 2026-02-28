@@ -5,6 +5,7 @@
  * status indicator during active replay.
  */
 
+import { useState } from 'react'
 import type { ReplaySessionSummary, ReplayState } from '../hooks/useReplay.js'
 
 interface ReplayPanelProps {
@@ -15,6 +16,14 @@ interface ReplayPanelProps {
   onStop: () => void
   onSpeedChange: (speed: number) => void
   onRefresh: () => void
+  // Live watcher props
+  liveWatching: boolean
+  liveJsonlPath: string | null
+  liveIsActive: boolean
+  liveCurrentTool: string | null
+  liveIsConnected: boolean
+  onLiveWatch: (path: string) => Promise<void>
+  onLiveStop: () => Promise<void>
 }
 
 const SPEEDS = [0.5, 1, 2]
@@ -96,8 +105,16 @@ export function ReplayPanel({
   onStop,
   onSpeedChange,
   onRefresh,
+  liveWatching,
+  liveJsonlPath,
+  liveIsActive,
+  liveCurrentTool,
+  liveIsConnected,
+  onLiveWatch,
+  onLiveStop,
 }: ReplayPanelProps) {
   const isPlaying = activeReplay !== null
+  const [livePath, setLivePath] = useState('')
 
   return (
     <div style={panelStyle}>
@@ -185,6 +202,72 @@ export function ReplayPanel({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Live watcher section */}
+      <div style={{ padding: '8px 10px', borderTop: '1px solid #333', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span style={{
+            display: 'inline-block',
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: !liveIsConnected ? '#a33' : liveWatching ? (liveIsActive ? '#4f4' : '#fa0') : '#666',
+            boxShadow: liveIsActive ? '0 0 6px #4f4' : 'none',
+          }} />
+          <span style={{ color: '#8af', fontWeight: 'bold', fontSize: '13px' }}>Live</span>
+          <span style={{ color: '#888', fontSize: '10px', marginLeft: 'auto' }}>
+            {!liveIsConnected ? 'disconnected' : liveWatching ? 'watching' : 'idle'}
+          </span>
+        </div>
+
+        {liveWatching && liveIsActive && liveCurrentTool && (
+          <div style={{ color: '#8f8', fontSize: '11px', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {liveCurrentTool}
+          </div>
+        )}
+
+        {liveWatching && liveJsonlPath && (
+          <div style={{ color: '#666', fontSize: '10px', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={liveJsonlPath}>
+            {liveJsonlPath.split(/[\\/]/).pop()}
+          </div>
+        )}
+
+        {!liveWatching && (
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="JSONL path..."
+              value={livePath}
+              onChange={e => setLivePath(e.target.value)}
+              style={{
+                flex: 1,
+                background: '#1a1a2a',
+                border: '1px solid #444',
+                color: '#ccc',
+                fontFamily: 'monospace',
+                fontSize: '10px',
+                padding: '3px 6px',
+                outline: 'none',
+              }}
+            />
+            <button
+              style={buttonStyle}
+              onClick={() => { if (livePath.trim()) onLiveWatch(livePath.trim()) }}
+            >
+              Watch
+            </button>
+          </div>
+        )}
+
+        {liveWatching && (
+          <button
+            style={{ ...buttonStyle, background: '#633', borderColor: '#a55', color: '#faa', fontSize: '10px' }}
+            onClick={onLiveStop}
+          >
+            Stop
+          </button>
+        )}
       </div>
     </div>
   )

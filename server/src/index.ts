@@ -4,6 +4,8 @@ import { createServer } from 'http'
 import { townMemoryRouter } from './api/townMemory.js'
 import { townDataRouter } from './api/townData.js'
 import { replayRouter } from './api/replay.js'
+import { createLiveRouter } from './api/live.js'
+import { startWatching } from './watchers/jsonlWatcher.js'
 
 const PORT = 3001
 const app = express()
@@ -26,6 +28,7 @@ app.use((_req, res, next) => {
 app.use('/api/memory', townMemoryRouter)
 app.use('/api/town', townDataRouter)
 app.use('/api/replay', replayRouter)
+app.use('/api/live', createLiveRouter(wss))
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -40,6 +43,17 @@ wss.on('connection', (ws) => {
 server.listen(PORT, () => {
   console.log(`[PixelCity] Server running on http://localhost:${PORT}`)
   console.log(`[PixelCity] WebSocket on ws://localhost:${PORT}/ws`)
+
+  // Auto-start JSONL watcher if env var is set
+  const jsonlPath = process.env.JSONL_PATH
+  if (jsonlPath) {
+    try {
+      startWatching(jsonlPath, wss)
+      console.log(`[PixelCity] Auto-watching JSONL: ${jsonlPath}`)
+    } catch (e) {
+      console.log(`[PixelCity] Failed to auto-watch JSONL: ${e}`)
+    }
+  }
 })
 
 export { wss }

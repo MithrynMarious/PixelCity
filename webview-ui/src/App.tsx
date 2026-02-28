@@ -8,6 +8,7 @@ import { useTownInit } from './hooks/useTownInit.js'
 import { usePlayerInput } from './hooks/usePlayerInput.js'
 import { useTownMemory, type GreetingResult } from './hooks/useTownMemory.js'
 import { useReplay } from './hooks/useReplay.js'
+import { useLiveActivity } from './hooks/useLiveActivity.js'
 import { ReplayPanel } from './components/ReplayPanel.js'
 import { defaultTownLayout } from './data/defaultTownLayout.js'
 import { TOWN_NPCS } from './data/townNpcs.js'
@@ -36,6 +37,14 @@ function App() {
     setPlaybackSpeed,
     fetchSessions,
   } = useReplay(getOfficeState)
+
+  const live = useLiveActivity()
+
+  // Merge replay glow + live Town Hall glow
+  const mergedGlowingBuildings = new Set(glowingBuildings)
+  if (live.townHallGlowing) {
+    mergedGlowingBuildings.add('town_hall')
+  }
 
   const [dialogueNpcId, setDialogueNpcId] = useState<number | null>(null)
   const [dialogueGreeting, setDialogueGreeting] = useState<GreetingResult | null>(null)
@@ -118,7 +127,7 @@ function App() {
         zoom={zoom}
         onZoomChange={handleZoomChange}
         panRef={panRef}
-        glowingBuildings={glowingBuildings}
+        glowingBuildings={mergedGlowingBuildings}
       />
 
       <ZoomControls zoom={zoom} onZoomChange={handleZoomChange} />
@@ -131,6 +140,13 @@ function App() {
         onStop={stopReplay}
         onSpeedChange={setPlaybackSpeed}
         onRefresh={fetchSessions}
+        liveWatching={live.watching}
+        liveJsonlPath={live.jsonlPath}
+        liveIsActive={live.isActive}
+        liveCurrentTool={live.currentTool}
+        liveIsConnected={live.isConnected}
+        onLiveWatch={live.startWatch}
+        onLiveStop={live.stopWatch}
       />
 
       {/* Vignette overlay */}
@@ -158,6 +174,21 @@ function App() {
         }}
       >
         Crystalline City — WASD to move, E to talk
+        {live.isConnected && live.watching && (
+          <div style={{ marginTop: 4, fontSize: '12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{
+              display: 'inline-block',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: live.isActive ? '#4f4' : '#666',
+              boxShadow: live.isActive ? '0 0 6px #4f4' : 'none',
+            }} />
+            <span style={{ color: live.isActive ? '#8f8' : '#666' }}>
+              {live.isActive ? `Mark is working — ${live.currentTool}` : 'Mark idle'}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Proximity hint — shown when near an NPC but not in dialogue */}
