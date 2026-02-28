@@ -49,7 +49,7 @@ const tileGrid: number[][] = [
   /*24 */ [G, G, G, G, G, G, P, G, G, G, G, G, P, G, G, G, G, P, G, P, G, G, P, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G],
   /*25 */ [G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G],
   /*26 */ [G, G, L, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, R, R, G, G, W, W, G],
-  /*27 */ [G, G, G, G, T, T, G, G, G, G, G, G, L, G, G, G, G, G, G, P, G, G, G, G, G, L, G, G, G, G, G, G, G, G, G, G, G, W, W, G],
+  /*27 */ [G, G, G, G, T, T, G, G, G, G, G, G, L, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, G],
   /*28 */ [G, G, G, G, R, R, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G],
   /*29 */ [G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G],
 ]

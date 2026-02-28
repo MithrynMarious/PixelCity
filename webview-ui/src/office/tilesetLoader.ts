@@ -33,12 +33,14 @@ export interface TilesetConfig {
   tiles: Record<string, TileRef>
   mapping: Record<string, string[]>
   buildings?: Record<string, { file: string }>
+  natureSprites?: Record<string, { file: string }>
 }
 
 export interface LoadedTileset {
   config: TilesetConfig
   sprites: Map<string, SpriteData>
   buildingSprites: Map<string, SpriteData>
+  natureSprites: Map<string, SpriteData>
 }
 
 // ---------------------------------------------------------------------------
@@ -123,10 +125,31 @@ export async function loadTileset(name: string): Promise<LoadedTileset | null> {
     }
   }
 
-  const buildingCount = buildingSprites.size > 0 ? `, ${buildingSprites.size} buildings` : ''
-  console.log(`[Tileset] Loaded "${config.name}" — ${sprites.size} tiles from ${sheetImages.size} sheet(s)${buildingCount}`)
+  // Load nature sprite PNGs (trees, rocks, flowers, water dots)
+  const natureSprites = new Map<string, SpriteData>()
+  if (config.natureSprites) {
+    for (const [spriteId, spriteDef] of Object.entries(config.natureSprites)) {
+      const img = await loadImage(`${basePath}/${spriteDef.file}`)
+      if (!img) {
+        console.log(`[Tileset] Nature sprite not found: ${spriteDef.file} — will skip`)
+        continue
+      }
+      const nCanvas = document.createElement('canvas')
+      nCanvas.width = img.width
+      nCanvas.height = img.height
+      const nCtx = nCanvas.getContext('2d')!
+      nCtx.drawImage(img, 0, 0)
+      const nImageData = nCtx.getImageData(0, 0, img.width, img.height)
+      const nSprite = imageDataToSpriteData(nImageData, img.width, img.height)
+      natureSprites.set(spriteId, nSprite)
+    }
+  }
 
-  return { config, sprites, buildingSprites }
+  const buildingCount = buildingSprites.size > 0 ? `, ${buildingSprites.size} buildings` : ''
+  const natureCount = natureSprites.size > 0 ? `, ${natureSprites.size} nature` : ''
+  console.log(`[Tileset] Loaded "${config.name}" — ${sprites.size} tiles from ${sheetImages.size} sheet(s)${buildingCount}${natureCount}`)
+
+  return { config, sprites, buildingSprites, natureSprites }
 }
 
 // ---------------------------------------------------------------------------

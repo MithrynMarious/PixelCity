@@ -12,6 +12,8 @@ export function isWalkable(
   if (row < 0 || row >= rows || col < 0 || col >= cols) return false
   const t = tileMap[row][col]
   if (t === TileType.WALL || t === TileType.VOID) return false
+  // Water and tree tiles are not walkable
+  if (t === TileType.FLOOR_3 || t === TileType.FLOOR_5 || t === TileType.FLOOR_6) return false
   if (blockedTiles.has(`${col},${row}`)) return false
   return true
 }

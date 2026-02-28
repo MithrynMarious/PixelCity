@@ -7,6 +7,7 @@ import { renderMatrixEffect } from './matrixEffect.js'
 import { getColorizedFloorSprite, hasFloorSprites, isTilesetActive, getTilesetFloorSprite, WALL_COLOR } from '../floorTiles.js'
 import { hasWallSprites, getWallInstances, wallColorToHex } from '../wallTiles.js'
 import { hasBuildingSprites, getBuildingInstances, isCoveredWallTile } from '../buildingSprites.js'
+import { hasNatureSprites, getTreeInstances, getShadowInstances, getRockInstances, isCoveredNatureTile, getWaterDotSprite } from '../natureSprites.js'
 import {
   CHARACTER_SITTING_OFFSET_PX,
   CHARACTER_Z_SORT_OFFSET,
@@ -70,6 +71,19 @@ export function renderTileGrid(
       // Skip VOID tiles entirely (transparent)
       if (tile === TileType.VOID) continue
 
+      // Nature sprite covers this tile — draw grass underneath instead of T/R floor tile
+      if ((tile === TileType.FLOOR_5 || tile === TileType.FLOOR_6) && isCoveredNatureTile(c, r)) {
+        const grassSprite = isTilesetActive() ? getTilesetFloorSprite(TileType.FLOOR_1, c, r) : null
+        if (grassSprite) {
+          const cached = getCachedSprite(grassSprite, zoom)
+          ctx.drawImage(cached, offsetX + c * s, offsetY + r * s)
+        } else {
+          ctx.fillStyle = FALLBACK_FLOOR_COLOR
+          ctx.fillRect(offsetX + c * s, offsetY + r * s, s, s)
+        }
+        continue
+      }
+
       if (tile === TileType.WALL || !useSpriteFloors) {
         if (tile === TileType.WALL && isCoveredWallTile(c, r)) {
           // Building sprite covers this tile — draw grass underneath instead
@@ -106,6 +120,15 @@ export function renderTileGrid(
         const sprite = getColorizedFloorSprite(tile, color)
         const cached = getCachedSprite(sprite, zoom)
         ctx.drawImage(cached, offsetX + c * s, offsetY + r * s)
+      }
+
+      // Water dot animation overlay on water tiles
+      if (tile === TileType.FLOOR_3) {
+        const waterDot = getWaterDotSprite()
+        if (waterDot) {
+          const waterCached = getCachedSprite(waterDot, zoom)
+          ctx.drawImage(waterCached, offsetX + c * s, offsetY + r * s)
+        }
       }
     }
   }
@@ -630,6 +653,11 @@ export function renderFrame(
   // Building sprite instances (multi-tile, z-sorted with characters)
   const buildingInstances = hasBuildingSprites() ? getBuildingInstances() : []
 
+  // Nature sprite instances (trees, shadows, rocks — z-sorted with characters)
+  const natureShadows = hasNatureSprites() ? getShadowInstances() : []
+  const natureTrees = hasNatureSprites() ? getTreeInstances() : []
+  const natureRocks = hasNatureSprites() ? getRockInstances() : []
+
   // Build wall instances for z-sorting with furniture and characters
   // Filter out wall instances for tiles covered by building sprites
   const rawWallInstances = hasWallSprites()
@@ -640,7 +668,7 @@ export function renderFrame(
         Math.round(w.x / TILE_SIZE),
         Math.round(w.zY / TILE_SIZE) - 1))
     : rawWallInstances
-  const allFurniture = [...buildingInstances, ...wallInstances, ...furniture]
+  const allFurniture = [...buildingInstances, ...wallInstances, ...natureShadows, ...natureTrees, ...natureRocks, ...furniture]
 
   // Draw walls + furniture + characters (z-sorted)
   const selectedId = selection?.selectedAgentId ?? null

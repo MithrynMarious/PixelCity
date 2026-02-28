@@ -17,6 +17,7 @@ import type { Character, Seat, FurnitureInstance, TileType as TileTypeVal, Offic
 import { createCharacter, updateCharacter } from './characters.js'
 import { matrixEffectSeeds } from './matrixEffect.js'
 import { isWalkable, getWalkableTiles, findPath } from '../layout/tileMap.js'
+import { tickWaterAnimation, getNatureBlockedPositions } from '../natureSprites.js'
 import {
   createDefaultLayout,
   layoutToTileMap,
@@ -136,6 +137,15 @@ export class OfficeState {
     ch.y = spawn.row * TILE_SIZE + TILE_SIZE / 2
     ch.path = []
     ch.moveProgress = 0
+  }
+
+  /** Merge nature-blocked positions into the blockedTiles set and rebuild walkable tiles */
+  mergeNatureBlocked(): void {
+    const natureBlocked = getNatureBlockedPositions()
+    for (const pos of natureBlocked) {
+      this.blockedTiles.add(pos)
+    }
+    this.walkableTiles = getWalkableTiles(this.tileMap, this.blockedTiles)
   }
 
   getLayout(): OfficeLayout {
@@ -614,6 +624,9 @@ export class OfficeState {
   }
 
   update(dt: number): void {
+    // Tick water ripple animation
+    tickWaterAnimation(dt)
+
     const toDelete: number[] = []
     for (const ch of this.characters.values()) {
       // Handle matrix effect animation

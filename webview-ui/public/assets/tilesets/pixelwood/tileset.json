@@ -39,5 +39,18 @@
     "quill_desk":        { "file": "Houses/Shops/4.png" },
     "glass_workshop":    { "file": "Village/Houses/2_1.png" }
   },
+  "natureSprites": {
+    "tree1":        { "file": "Trees/Tree1.png" },
+    "tree_shadow":  { "file": "Trees/Treeshadow.png" },
+    "rock1":        { "file": "Rocks/1.png" },
+    "rock2":        { "file": "Rocks/2.png" },
+    "rock3":        { "file": "Rocks/3.png" },
+    "flower_pot":   { "file": "Rocks/5.png" },
+    "water_dot_1":  { "file": "Water/Water Dots/Dot1.png" },
+    "water_dot_2":  { "file": "Water/Water Dots/Dot2.png" },
+    "water_dot_3":  { "file": "Water/Water Dots/Dot3.png" },
+    "water_dot_4":  { "file": "Water/Water Dots/Dot4.png" },
+    "water_dot_5":  { "file": "Water/Water Dots/Dot5.png" }
+  },
   "_comment": "Coordinates mapped to Tiles/Tile.png (15x12 grid, 16px tiles). Buildings are standalone PNGs of varying sizes — loaded individually, not from sheet grid."
 }
