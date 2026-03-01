@@ -9,6 +9,7 @@ import { loadPixelwoodCharacters } from '../office/sprites/pixelwoodCharLoader.j
 import { setTilesetFloorSprites } from '../office/floorTiles.js'
 import { setBuildingTileset } from '../office/buildingSprites.js'
 import { setNatureTileset } from '../office/natureSprites.js'
+import { setInteriorTileset } from '../office/interiorSprites.js'
 
 const PLAYER_ID = 0
 const PLAYER_PALETTE = 0
@@ -74,6 +75,7 @@ export function useTownInit(
         setTilesetFloorSprites(tileset)
         setBuildingTileset(tileset)
         setNatureTileset(tileset, os.tileMap)
+        setInteriorTileset(tileset)
         os.mergeNatureBlocked()
         console.log('[TownInit] Tileset loaded — rendering with Pixelwood Valley sprites')
       } else {
