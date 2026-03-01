@@ -18,6 +18,7 @@ import { createCharacter, updateCharacter } from './characters.js'
 import { matrixEffectSeeds } from './matrixEffect.js'
 import { isWalkable, getWalkableTiles, findPath } from '../layout/tileMap.js'
 import { tickWaterAnimation, getNatureBlockedPositions } from '../natureSprites.js'
+import { tickBuildingAnimations } from '../buildingAnimations.js'
 import {
   createDefaultLayout,
   layoutToTileMap,
@@ -628,6 +629,8 @@ export class OfficeState {
   update(dt: number): void {
     // Tick water ripple animation
     tickWaterAnimation(dt)
+    // Tick smoke + door animations
+    tickBuildingAnimations(dt)
 
     const toDelete: number[] = []
     for (const ch of this.characters.values()) {

@@ -14,6 +14,7 @@ import { defaultTownLayout, TOWN_BUILDINGS } from './data/defaultTownLayout.js'
 import { TOWN_NPCS } from './data/townNpcs.js'
 import { INTERIOR_LAYOUTS } from './data/interiorLayouts.js'
 import { createInteriorFurnitureInstance } from './office/interiorSprites.js'
+import { triggerDoorOpen, isDoorAnimating } from './office/buildingAnimations.js'
 import { createCharacter } from './office/engine/characters.js'
 import { TILE_SIZE } from './office/types.js'
 import type { Character } from './office/types.js'
@@ -102,7 +103,9 @@ function App() {
   }, [])
 
   // ── Enter building interior ───────────────────────────────────
-  const handleEnterBuilding = useCallback((buildingId: string) => {
+  const enteringRef = useRef(false)
+
+  const doEnterInterior = useCallback((buildingId: string) => {
     const interior = INTERIOR_LAYOUTS[buildingId]
     if (!interior) return
 
@@ -161,7 +164,17 @@ function App() {
 
     setCurrentBuildingId(buildingId)
     setScene('interior')
+    enteringRef.current = false
   }, [])
+
+  const handleEnterBuilding = useCallback((buildingId: string) => {
+    if (enteringRef.current) return
+    enteringRef.current = true
+
+    // Trigger door open animation, then swap scene after a short delay
+    triggerDoorOpen(buildingId)
+    setTimeout(() => doEnterInterior(buildingId), 500)
+  }, [doEnterInterior])
 
   // ── Exit building interior ────────────────────────────────────
   const handleExitBuilding = useCallback(() => {

@@ -90,5 +90,19 @@
     "carpet_red_1":   { "file": "interior/carpet/red/CARPET_1.png" },
     "carpet_purple_1": { "file": "interior/carpet/PURPLE/CARPET_1.png" }
   },
+  "animationSprites": {
+    "smoke_1": { "file": "Town/Smoke/smoke1.png" },
+    "smoke_2": { "file": "Town/Smoke/smoke2.png" },
+    "smoke_3": { "file": "Town/Smoke/smoke3.png" },
+    "smoke_4": { "file": "Town/Smoke/smoke4.png" },
+    "smoke_5": { "file": "Town/Smoke/smoke5.png" },
+    "smoke_6": { "file": "Town/Smoke/smoke6.png" },
+    "smoke_7": { "file": "Town/Smoke/smoke7.png" },
+    "smoke_8": { "file": "Town/Smoke/smoke8.png" },
+    "door_1":  { "file": "Town/Door Animation/Door1.png" },
+    "door_2":  { "file": "Town/Door Animation/Door2.png" },
+    "door_3":  { "file": "Town/Door Animation/Door3.png" },
+    "door_4":  { "file": "Town/Door Animation/Door4.png" }
+  },
   "_comment": "Coordinates mapped to Tiles/Tile.png (15x12 grid, 16px tiles). Buildings are standalone PNGs of varying sizes — loaded individually, not from sheet grid."
 }
